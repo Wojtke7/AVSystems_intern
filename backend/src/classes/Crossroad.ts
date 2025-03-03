@@ -50,6 +50,11 @@ export class Crossroad {
 
   step(): string[] {
     let leftVehicles: string[] = [];
+    if (this.trafficLights[0].state === "yellow" || this.trafficLights[1].state === "yellow") {
+      this.changeLights();
+      return [];
+    }
+    
     const activeRoads = this.trafficLights[0].state === "green" ? ["north", "south"] : ["east", "west"];
     const vehicles: IVehicle[] = activeRoads.flatMap((road: string) => this.waitingVehicles[road].slice(0, 1));
 
