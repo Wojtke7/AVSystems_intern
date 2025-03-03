@@ -20,6 +20,7 @@ export class Crossroad {
     this.waitingVehicles[vehicle.startRoad].push(vehicle);
   }
 
+
   private changeLights(): void {
     if (this.trafficLights[0].state === "green") {
       this.trafficLights[0].state = "yellow";
@@ -33,54 +34,44 @@ export class Crossroad {
       this.trafficLights[0].state = "green";
     }
   }
-
-  private hasCollision(vehicle: IVehicle, otherVehicles: IVehicle[]): boolean {
-    const oppositeRoad: { [key: string]: string } = {
-      north: "south",
-      south: "north",
-      east: "west",
-      west: "east"
+  private isLeftTurn(vehicle: IVehicle): boolean {
+    const leftTurn: { [key: string]: string } = {
+      north: "east", 
+      south: "west", 
+      east: "south", 
+      west: "north"
     };
+    return vehicle.endRoad === leftTurn[vehicle.startRoad];
+  }
 
-    const rightTurnPriority: { [key: string]: string } = {
-      north: "west",
-      south: "east",
-      east: "north",
-      west: "south"
-    };
-
-    for (const other of otherVehicles) {
-      if (other.endRoad === vehicle.startRoad) {
-        return true;
-      }
-      if (
-        vehicle.endRoad === rightTurnPriority[vehicle.startRoad] &&
-        other.startRoad === oppositeRoad[vehicle.startRoad] && // Necessary?
-        other.endRoad !== rightTurnPriority[other.startRoad]
-      ) {
-        return true;
-      }
-    }
-    return false;
+  private hasCollision(vehicleA: IVehicle, vehicleB: IVehicle): boolean {
+    return this.isLeftTurn(vehicleA) !== this.isLeftTurn(vehicleB);
   }
 
   step(): string[] {
     let leftVehicles: string[] = [];
     const activeRoads = this.trafficLights[0].state === "green" ? ["north", "south"] : ["east", "west"];
-    
-    for (const road of activeRoads) {
-      if (this.waitingVehicles[road].length === 0) continue;
+    const vehicles: IVehicle[] = activeRoads.flatMap((road: string) => this.waitingVehicles[road].slice(0, 1));
 
-      const vehiclesToProcess = [...this.waitingVehicles[road]];
-      for (const vehicle of vehiclesToProcess) {
-        if (!this.hasCollision(vehicle, vehiclesToProcess)) {
-          leftVehicles.push(vehicle.id);
-          this.waitingVehicles[road] = this.waitingVehicles[road].filter(v => v.id !== vehicle.id);
-        }
+    if (vehicles.length === 2 && !this.hasCollision(vehicles[0], vehicles[1])) {
+      leftVehicles.push(vehicles[0].id, vehicles[1].id);
+      this.waitingVehicles[vehicles[0].startRoad].shift();
+      this.waitingVehicles[vehicles[1].startRoad].shift();
+    } 
+    else if (vehicles.length === 2 && this.hasCollision(vehicles[0], vehicles[1])) {
+      if (this.isLeftTurn(vehicles[0])) {
+        leftVehicles.push(vehicles[1].id);
+        this.waitingVehicles[vehicles[1].startRoad].shift();
+      }
+      else {
+        leftVehicles.push(vehicles[0].id);
+        this.waitingVehicles[vehicles[0].startRoad].shift();
       }
     }
-    
-    this.changeLights();
+    else if (vehicles.length > 0) {
+      leftVehicles.push(vehicles[0].id);
+      this.waitingVehicles[vehicles[0].startRoad].shift();
+    }
     return leftVehicles;
   }
 }
