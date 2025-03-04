@@ -20,6 +20,7 @@ export class Simulation {
       this.crossroad.addVehicle(vehicle);
     } else if (command.type === "step") {
       const leftVehicles = this.crossroad.step();
+      console.log(leftVehicles)
       this.stepResults.push({ leftVehicles });
     }
   }
