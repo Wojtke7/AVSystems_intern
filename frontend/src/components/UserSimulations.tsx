@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { url } from "../url";
 
 const SimulationsPage: React.FC = () => {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const [simulations, setSimulations] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [currentSimulationIndex, setCurrentSimulationIndex] = useState<number>(0);
 
   useEffect(() => {
     const fetchSimulations = async (): Promise<void> => {
@@ -17,7 +18,7 @@ const SimulationsPage: React.FC = () => {
         const response = await fetch(url + "/user/jsons", {
           method: "GET",
           headers: {
-            "Authorization": token!,
+            "Authorization": `Bearer ${token}`,
           },
         });
 
@@ -41,6 +42,20 @@ const SimulationsPage: React.FC = () => {
     navigate("/main");
   };
 
+  const nextSimulation = (): void => {
+    if (currentSimulationIndex < simulations.length - 1) {
+      setCurrentSimulationIndex(currentSimulationIndex + 1);
+    }
+  };
+
+  const prevSimulation = (): void => {
+    if (currentSimulationIndex > 0) {
+      setCurrentSimulationIndex(currentSimulationIndex - 1);
+    }
+  };
+
+  const currentSimulation = simulations[currentSimulationIndex];
+
   return (
     <div className="p-10">
       <div className="flex justify-between items-center mb-6">
@@ -52,32 +67,49 @@ const SimulationsPage: React.FC = () => {
           Back to Main Page
         </button>
       </div>
+
       {loading ? (
         <p>Loading simulations...</p>
+      ) : simulations.length === 0 ? (
+        <p>No simulations available</p>
       ) : (
-        <table className="min-w-full table-auto border-2 border-gray-800">
-          <thead>
-            <tr>
-              <th className="px-6 py-3 text-left border-2 border-gray-800">Input</th>
-              <th className="px-6 py-3 text-left border-2 border-gray-800">Output</th>
-            </tr>
-          </thead>
-          <tbody>
-            {simulations.map((simulation, index) => (
-              <tr key={index}>
-                <td className="border-2 border-gray-800 px-6 py-3">
-                  <pre>{JSON.stringify(simulation.input, null, 2)}</pre>
-                </td>
+        <div>
+          {/* Navigation Arrows - Moved above the table */}
+          <div className="flex justify-between items-center mb-4">
+            <button
+              onClick={prevSimulation}
+              className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600"
+              disabled={currentSimulationIndex === 0}
+            >
+              &lt; Previous
+            </button>
+            <h2 className="text-2xl">Simulation {currentSimulationIndex + 1} of {simulations.length}</h2>
+            <button
+              onClick={nextSimulation}
+              className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600"
+              disabled={currentSimulationIndex === simulations.length - 1}
+            >
+              Next &gt;
+            </button>
+          </div>
 
-                <td className="border-2 border-gray-800 px-6 py-3 align-top">
-                  <div className="mb-4">
-                    <pre>{JSON.stringify(simulation.output, null, 2)}</pre>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+          {/* Display current simulation */}
+          <div className="border-2 border-gray-800 p-4">
+            <div className="grid grid-cols-2 gap-4">
+              {/* Input */}
+              <div className="border-2 border-gray-800 p-4">
+                <h3 className="text-xl mb-2">Input</h3>
+                <pre>{JSON.stringify(currentSimulation.input, null, 2)}</pre>
+              </div>
+
+              {/* Output */}
+              <div className="border-2 border-gray-800 p-4">
+                <h3 className="text-xl mb-2">Output</h3>
+                <pre>{JSON.stringify(currentSimulation.output, null, 2)}</pre>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
