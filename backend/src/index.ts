@@ -22,20 +22,14 @@ fs.writeFileSync(`./src/output/${outputPath}`, JSON.stringify(output));
 dotenv.config();
 const app = express();
 
-app.use(cors());
-
+app.use(cors({
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'input', 'X-Requested-With', 'Origin', 'Accept'],
+  }));
 app.use(express.json());
 
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "OPTIONS, GET, POST, PUT, PATCH, DELETE"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization, input, X-Requested-With, Origin, Accept"
-  );
   next();
 });
 
