@@ -68,21 +68,30 @@ const MainPage: React.FC = () => {
         <h1 className="text-4xl">Run Your Simulation</h1>
         <button
           onClick={handleLogout}
-          className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
+          className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600"
         >
           Logout
         </button>
       </div>
+
       <input type="file" accept=".json" onChange={handleFileUpload} className="mb-4" />
-      <button className="bg-green-500 text-white p-2 ml-4" onClick={runSimulation}>
-        Run Simulation
-      </button>
-      <button
-        onClick={navigateToSimulations}
-        className="bg-blue-500 text-white py-2 px-4 rounded ml-4 hover:bg-blue-600"
-      >
-        My Simulations
-      </button>
+
+      {/* Wyśrodkowanie tylko przycisków */}
+      <div className="flex justify-center gap-4 mt-4">
+        <button
+          className="bg-green-500 text-white py-2 px-6 rounded-xl hover:bg-green-600"
+          onClick={runSimulation}
+        >
+          Run Simulation
+        </button>
+        <button
+          onClick={navigateToSimulations}
+          className="bg-blue-500 text-white py-2 px-6 rounded-xl hover:bg-blue-600"
+        >
+          My Simulations
+        </button>
+      </div>
+
       <div className="mt-6 grid grid-cols-2 gap-4">
         <pre className="border p-4">
           {fileContent ? JSON.stringify(fileContent, null, 2) : "Upload a JSON file"}

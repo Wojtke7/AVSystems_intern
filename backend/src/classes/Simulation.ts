@@ -10,7 +10,7 @@ export class Simulation {
     this.crossroad = new Crossroad();
   }
 
-  processCommand(command: ICommand): void {
+  processCommand(command: ICommand, step: Number): void {
     if (command.type === "addVehicle" && command.vehicleId && command.startRoad && command.endRoad) {
       const vehicle: IVehicle = {
         id: command.vehicleId,
@@ -18,15 +18,20 @@ export class Simulation {
         endRoad: command.endRoad
       };
       this.crossroad.addVehicle(vehicle);
+      console.log(`Step ${step}: Added vehicle ${command.vehicleId}`);
     } else if (command.type === "step") {
       const leftVehicles = this.crossroad.step();
-      console.log(leftVehicles)
+      if (leftVehicles.length === 0) {
+        console.log(`Step ${step}: No vehicles left`);
+      } else {
+        console.log(`Step ${step}: [${leftVehicles}] left`);
+      }
       this.stepResults.push({ leftVehicles });
     }
   }
 
   runSimulation(commands: ICommand[]): object {
-    commands.forEach((command) => this.processCommand(command));
+    commands.forEach((command, index) => this.processCommand(command, index));
     return { stepStatuses: this.stepResults };
   }
 }

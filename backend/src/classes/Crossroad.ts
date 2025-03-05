@@ -40,6 +40,8 @@ export class Crossroad {
     const activeLight = this.trafficLights.find(light => light.state === "green" || light.state === "yellow");
     const inactiveLight = this.trafficLights.find(light => light.state === "red");
 
+    console.log(`Changing lights from ${activeLight!.road} current light: ${activeLight!.state} to ${inactiveLight!.road}`);
+
     if (!activeLight || !inactiveLight) return;
 
     if (activeLight.state === "green") {

@@ -1,0 +1,21 @@
+{
+  "name": "avsystems_intern",
+  "version": "1.0.0",
+  "description": "Traffic lights simulation project for AVSystems intern recruitment.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "concurrently \"npm run dev --prefix backend\" \"npm start --prefix frontend\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Wojtke7/AVSystems_intern.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Wojtke7/AVSystems_intern/issues"
+  },
+  "homepage": "https://github.com/Wojtke7/AVSystems_intern#readme"
+}

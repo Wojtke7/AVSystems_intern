@@ -17,7 +17,6 @@ const isAuth = (req: Request, res: Response, next: NextFunction) => {
     }
 
     const token = header.split(' ')[1];
-    console.log(token);
     const decodeToken = jwt.verify(
         token,
         process.env.SECRET_KEY as jwt.Secret,
