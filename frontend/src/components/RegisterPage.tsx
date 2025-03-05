@@ -11,6 +11,15 @@ const RegisterPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleRegister = async (): Promise<void> => {
+    if (username.length < 4) {
+      setError("Username must be at least 4 characters.");
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
     if (password !== confirmPassword) {
       setError("Passwords do not match!");
       return;
