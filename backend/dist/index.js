@@ -32,11 +32,34 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const Simulation_1 = require("./classes/Simulation");
+// import userRouter  from "./api/routes/user";
+const auth_1 = __importDefault(require("./api/routes/auth"));
 const fs = __importStar(require("fs"));
-const inputJSON = fs.readFileSync('./src/input/input2.json', 'utf8');
+const express_1 = __importDefault(require("express"));
+const dotenv_1 = __importDefault(require("dotenv"));
+const cors_1 = __importDefault(require("cors"));
+const [inputPath, outputPath] = process.argv.slice(2);
+const inputJSON = fs.readFileSync(`./src/input/${inputPath}`, 'utf8');
 const commands = JSON.parse(inputJSON).commands;
 const simulation = new Simulation_1.Simulation();
 const output = simulation.runSimulation(commands);
-fs.writeFileSync('./src/output/output2.json', JSON.stringify(output));
+fs.writeFileSync(`./src/output/${outputPath}`, JSON.stringify(output));
+dotenv_1.default.config();
+const app = (0, express_1.default)();
+app.use((0, cors_1.default)());
+app.use(express_1.default.json());
+app.use((req, res, next) => {
+    //cors policy
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "OPTIONS, GET, POST, PUT, PATCH, DELETE");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, input, X-Requested-With, Origin, Accept");
+    next();
+});
+// app.use("/user", userRouter);
+app.use("/auth", auth_1.default);
+const httpServer = app.listen(process.env.PORT || 3000);

@@ -1,5 +1,5 @@
-import { IVehicle } from "../models/IVehicle";
-import { ITrafficLight } from "../models/ITrafficLight";
+import { IVehicle } from "../types/IVehicle";
+import { ITrafficLight } from "../types/ITrafficLight";
 
 export class Crossroad {
   private trafficLights: ITrafficLight[] = [
@@ -37,23 +37,21 @@ export class Crossroad {
 
 
   private changeLights(): void {
-    if (this.trafficLights[0].state === "green") {
-      this.trafficLights[0].state = "yellow";
-    } else if (this.trafficLights[0].state === "yellow") {
-      this.trafficLights[0].state = "red";
-      this.trafficLights[1].state = "green";
+    const activeLight = this.trafficLights.find(light => light.state === "green" || light.state === "yellow");
+    const inactiveLight = this.trafficLights.find(light => light.state === "red");
 
-      this.trafficLights[0].vehiclesPassed = 0;
-    } else if (this.trafficLights[1].state === "green") {
-      this.trafficLights[1].state = "yellow";
-    } else if (this.trafficLights[1].state === "yellow") {
-      this.trafficLights[1].state = "red";
-      this.trafficLights[0].state = "green";
+    if (!activeLight || !inactiveLight) return;
 
-      this.trafficLights[1].vehiclesPassed = 0;
+    if (activeLight.state === "green") {
+        activeLight.state = "yellow";
+    } else if (activeLight.state === "yellow") {
+        activeLight.state = "red";
+        inactiveLight.state = "green";
+        activeLight.vehiclesPassed = 0;
     }
+
     this.stepsSinceLastChange = 0;
-  }
+}
   
   private isLeftTurn(vehicle: IVehicle): boolean {
     const leftTurn: { [key: string]: string } = {
@@ -65,6 +63,16 @@ export class Crossroad {
     return vehicle.endRoad === leftTurn[vehicle.startRoad];
   }
 
+  private isRightTurn(vehicle: IVehicle): boolean {
+    const rightTurn: { [key: string]: string } = {
+      north: "west", 
+      south: "east", 
+      east: "north", 
+      west: "south"
+    };
+    return vehicle.endRoad === rightTurn[vehicle.startRoad];
+  }
+
   private hasCollision(vehicleA: IVehicle, vehicleB: IVehicle): boolean {
     return this.isLeftTurn(vehicleA) !== this.isLeftTurn(vehicleB);
   }
@@ -73,14 +81,29 @@ export class Crossroad {
     let leftVehicles: string[] = [];
 
     if (this.shouldChangeLights()) {
-      console.log("Lights changed");
       this.changeLights();
       return [];
     }
     
     const activeRoads = this.trafficLights[0].state === "green" ? ["north", "south"] : ["east", "west"];
+    const redRoads = activeRoads[0] === "north" ? ["east", "west"] : ["north", "south"];
+
     const trafficLights = this.trafficLights.find(light => light.state === "green");
+
     const vehicles: IVehicle[] = activeRoads.flatMap((road: string) => this.waitingVehicles[road].slice(0, 1));
+
+    for (const road of redRoads) {
+      const vehicle = this.waitingVehicles[road][0];
+      if (this.waitingVehicles[road].length === 0 || !this.isRightTurn(vehicle)) continue;
+
+      const canTurnRight = !vehicles.some((activeVehicles) => activeVehicles.endRoad === vehicle.endRoad);
+
+      if (canTurnRight) {
+        leftVehicles.push(vehicle.id);
+        this.waitingVehicles[road].shift();
+        console.log(`Vehicle ${vehicle.id} turned right on green filter arrow from ${road}`);
+      }
+    }
 
     if (vehicles.length === 2 && !this.hasCollision(vehicles[0], vehicles[1])) {
       leftVehicles.push(vehicles[0].id, vehicles[1].id);

@@ -1,5 +1,5 @@
-import { ICommand } from "../models/ICommand";
-import { IVehicle } from "../models/IVehicle";
+import { ICommand } from "../types/ICommand";
+import { IVehicle } from "../types/IVehicle";
 import { Crossroad } from "./Crossroad";
 
 export class Simulation {
